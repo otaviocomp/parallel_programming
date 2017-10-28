@@ -3,14 +3,15 @@
 #include <mpi.h>
 
 void get_dims(int *n, int *m, int rank);
-void allocate(int n, int m, double *vector, double *matrix);	
-void read(int n, int m, double *vector, double *matrix, int rank);
+void allocate(int n, int m, double *vector, double *matrix, double *vector_t, int rank);	
+void read_mat_vec(int n, int m, double *vector, double *matrix, int rank);
+void print_input(int n, int m, double *matrix, double *vector, int rank);
 
 int main()
 {
 	int n, m; //n = rows; m = columns
 	int comm_sz, rank;
-	double *matrix, *vector;
+	double *matrix, *vector, *vector_t;
 
 	MPI_Init(NULL, NULL);
 	
@@ -18,10 +19,12 @@ int main()
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	
 	get_dims(&n, &m, rank);
-	allocate(n, m, vector, matrix);
-	read(n, m, vector, matrix, rank);
+	allocate(n, m, vector, matrix, vector_t, rank);
+	read_mat_vec(n, m, vector, matrix, rank);
+	print_input(n, m, matrix, vector, rank);
 
 	MPI_Finalize();
+	return 0;
 }
 
 void get_dims(int *n, int *m, int rank)
@@ -37,13 +40,15 @@ void get_dims(int *n, int *m, int rank)
 	}
 }
 
-void allocate(int n, int m, double *vector, double *matrix)
+void allocate(int n, int m, double *vector, double *matrix, double *vector_t, int rank)
 {
 	vector = malloc(m*sizeof(double));
-	matrix = malloc(n*m*sizeof(double));
+	vector_t = malloc(m*sizeof(double));
+	if(rank == 0)
+		matrix = malloc(n*m*sizeof(double));
 }
-		
-void read(int n, int m, double *vector, double *matrix, int rank)
+
+void read_mat_vec(int n, int m, double *vector, double *matrix, int rank)
 {
 	if(rank == 0)
 	{
@@ -56,3 +61,19 @@ void read(int n, int m, double *vector, double *matrix, int rank)
 			scanf("%e", vector[i]);
 	}
 }
+
+
+void print_input(int n, int m, double *matrix, double *vector, int rank)
+{
+	if(rank == 0)
+	{
+		int i = 0;
+		printf("\n--matrix--\n");
+		for(i = 0; i < n*m; i++)
+			printf("%e ", matrix[i]);
+		printf("\n--vector--\n");
+		for(i = 0; i < m; i++)
+			printf("%e ", vector[i]);
+	}
+}
+
