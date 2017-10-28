@@ -39,7 +39,7 @@ int main(void)
 {
 	int my_rank, comm_sz, n = 1024, local_n;   
 	double a = 0.0, b = 3.0, h, local_a, local_b;
-	double local_int, total_int;
+	double local_int, total_int = 0;
 	int source; 
 
 	/* Let the system do what it needs to start up MPI */
@@ -69,7 +69,8 @@ int main(void)
 	for(i = 0; i < 2; i++)
 	{
 		if (my_rank % divisor == 0) 
-		{
+		{	
+			total_int = local_int;
 			partner = my_rank + diff;
 			MPI_Recv(&local_int, 1, MPI_DOUBLE, partner, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
 			total_int += local_int;
@@ -78,16 +79,16 @@ int main(void)
 		{
 			partner = my_rank - diff;
 			MPI_Send(&local_int, 1, MPI_DOUBLE, partner, 0, MPI_COMM_WORLD); 
-		} 
+		}
+		local_int = total_int;
 		divisor *= 2;
 		diff *= 2;
-		i++;
 	}
 	/* Print the result */
 	if (my_rank == 0) 
 	{
-	  printf("With n = %d trapezoids, our estimate\n", n);
-	  printf("of the integral from %f to %f = %.15e\n", a, b, total_int);
+		printf("With n = %d trapezoids, our estimate\n", n);
+		printf("of the integral from %f to %f = %.15e\n", a, b, total_int);
 	}
 
 	/* Shut down MPI */
