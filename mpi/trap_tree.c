@@ -25,6 +25,7 @@
  */
 #include <stdio.h>
 #include <math.h> 
+#include <time.h> 
 
 /* We'll be using MPI routines, definitions, etc. */
 #include <mpi.h>
@@ -66,15 +67,22 @@ int main(void)
 	int diff = 1;
 	int partner;
 	int i = 0;
-	for(i = 0; i < 2; i++)
+	int cores = (int)log(comm_sz)/log(2);
+	clock_t t = clock();
+	for(i = 0; i <= cores; i++)
 	{
-		if (my_rank % divisor == 0) 
+		if ((my_rank % divisor == 0) && ((my_rank + diff) < comm_sz)) 
 		{	
 			total_int = local_int;
 			partner = my_rank + diff;
 			MPI_Recv(&local_int, 1, MPI_DOUBLE, partner, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
 			total_int += local_int;
-		} 
+		}
+		else if((my_rank % divisor == 0) && ((my_rank + diff) == comm_sz))
+		{
+			partner = my_rank - (diff + 1);
+			MPI_Send(&local_int, 1, MPI_DOUBLE, partner, 0, MPI_COMM_WORLD);
+		}
 		else 
 		{
 			partner = my_rank - diff;
@@ -83,10 +91,12 @@ int main(void)
 		local_int = total_int;
 		divisor *= 2;
 		diff *= 2;
-	}
+	}	
 	/* Print the result */
 	if (my_rank == 0) 
 	{
+		t = clock() - t;
+		printf("time = %f\n", (float)t/CLOCKS_PER_SEC);
 		printf("With n = %d trapezoids, our estimate\n", n);
 		printf("of the integral from %f to %f = %.15e\n", a, b, total_int);
 	}
