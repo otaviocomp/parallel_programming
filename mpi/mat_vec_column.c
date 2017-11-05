@@ -45,7 +45,6 @@ int main()
 			scanf("%f", &vector[i]);	
 		for(i = 1; i < comm_sz; i++)
 			MPI_Send(matrix + i, 1, column, i, 0, MPI_COMM_WORLD);
-		//MPI_Scatter(matrix, 1, column, vector_t, 1, column, 0, MPI_COMM_WORLD); 
 		MPI_Scatter(vector, 1, MPI_FLOAT, &x, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 	}
 	else
@@ -56,34 +55,23 @@ int main()
 	for(i = 0; i < n; i++)
 		vector_t[i] = matrix[i*m];
 
-	printf("\n\n--vector-- process %d\n", rank);
-	fflush(stdout);
-	for(i = 0; i < n; i++)
-		printf("%f ", vector_t[i]);
-	printf("\n");	
-
 	for(i = 0; i < n; i++)
 	{
 		parcial = vector_t[i]*x;
 		MPI_Reduce(&parcial, vector + i, 1, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
 	}
-		
+	
+	free(matrix);
+	free(vector_t);
 	if(rank == 0)
 	{
 		int i, j;
-		printf("\n--matrix--\n");
-		fflush(stdout);
-		for(i = 0; i < n; i++)
-		{
-			for(j = 0; j < m; j++)
-				printf("%f ", matrix[i*m + j]);
-			printf("\n");
-		}
-		printf("\n\n--vector--\n");
+		printf("\n\n--result--\n");
 		fflush(stdout);
 		for(i = 0; i < m; i++)
 			printf("%f ", vector[i]);
-		printf("\n");	
+		printf("\n");
+		free(vector);
 	}	
 
 	MPI_Finalize();
