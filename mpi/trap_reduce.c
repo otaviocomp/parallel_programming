@@ -25,7 +25,6 @@
  */
 #include <stdio.h>
 #include <math.h> 
-#include <time.h> 
 
 /* We'll be using MPI routines, definitions, etc. */
 #include <mpi.h>
@@ -38,8 +37,8 @@ double f(double x);
 
 int main(void) 
 {
-	clock_t t;
-	int my_rank, comm_sz, n = 1024, local_n;   
+	double start, finish;
+	int my_rank, comm_sz, n = 65536, local_n;   
 	double a = 0.0, b = 3.0, h, local_a, local_b;
 	double local_int, total_int = 0;
 	int source; 
@@ -64,14 +63,13 @@ int main(void)
 	local_int = Trap(local_a, local_b, local_n, h);
 
 	/* Add up the integrals calculated by each process */
-	if(my_rank == 0)
-		t = clock();
+	start = MPI_Wtime();
 	MPI_Reduce(&local_int, &total_int, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);	
+	finish = MPI_Wtime();
 	/* Print the result */
 	if (my_rank == 0) 
 	{
-		t = clock() - t;
-		printf("time = %f\n", (double)t/CLOCKS_PER_SEC);
+		printf("time = %e\n", finish - start);
 		printf("With n = %d trapezoids, our estimate\n", n);
 		printf("of the integral from %f to %f = %.15e\n", a, b, total_int);
 	}

@@ -38,9 +38,9 @@ double f(double x);
 
 int main(void) 
 {
-	int my_rank, comm_sz, n = 1024, local_n;   
+	int my_rank, comm_sz, n = 65536, local_n;   
 	double a = 0.0, b = 3.0, h, local_a, local_b;
-	double local_int, total_int = 0;
+	double local_int, total_int = 0, start, finish;
 	int source; 
 
 	/* Let the system do what it needs to start up MPI */
@@ -66,10 +66,8 @@ int main(void)
 	int divisor = 2;
 	int diff = 1;
 	int partner;
-	int i = 0;
-	int cores = (int)log(comm_sz)/log(2);
-	clock_t t = clock();
-	for(i = 0; i <= cores; i++)
+	start = MPI_Wtime();
+	for(divisor = 2; divisor <= comm_sz; divisor *= 2)
 	{
 		if ((my_rank % divisor == 0) && ((my_rank + diff) < comm_sz)) 
 		{	
@@ -89,14 +87,13 @@ int main(void)
 			MPI_Send(&local_int, 1, MPI_DOUBLE, partner, 0, MPI_COMM_WORLD); 
 		}
 		local_int = total_int;
-		divisor *= 2;
 		diff *= 2;
-	}	
+	}
+	finish = MPI_Wtime();
+	printf("time = %e\n", finish - start);
 	/* Print the result */
 	if (my_rank == 0) 
 	{
-		t = clock() - t;
-		printf("time = %f\n", (float)t/CLOCKS_PER_SEC);
 		printf("With n = %d trapezoids, our estimate\n", n);
 		printf("of the integral from %f to %f = %.15e\n", a, b, total_int);
 	}
