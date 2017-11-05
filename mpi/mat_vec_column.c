@@ -28,7 +28,6 @@ int main()
 	MPI_Bcast(&m, 1, MPI_INT, 0, MPI_COMM_WORLD);
 
 	// allocate vectors
-	vector_t = malloc(n*sizeof(float));
 	matrix = malloc(n*m*sizeof(float)); //matrix de entrada
 
 	MPI_Type_vector(m, 1, m, MPI_FLOAT, &column);
@@ -52,22 +51,18 @@ int main()
 		MPI_Recv(matrix, 1, column, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		MPI_Scatter(vector, 1, MPI_FLOAT, &x, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 	}
-	for(i = 0; i < n; i++)
-		vector_t[i] = matrix[i*m];
 
 	for(i = 0; i < n; i++)
 	{
-		parcial = vector_t[i]*x;
+		parcial = matrix[i*m]*x;
 		MPI_Reduce(&parcial, vector + i, 1, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
 	}
 	
 	free(matrix);
-	free(vector_t);
 	if(rank == 0)
 	{
-		int i, j;
+		int i;
 		printf("\n\n--result--\n");
-		fflush(stdout);
 		for(i = 0; i < m; i++)
 			printf("%f ", vector[i]);
 		printf("\n");
