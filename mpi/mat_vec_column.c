@@ -43,24 +43,33 @@ int main()
 		for(i = 0; i < m; i++)
 			scanf("%f", &vector[i]);	
 		for(i = 1; i < comm_sz; i++)
-			MPI_Send(matrix + i, 1, column, i, 0, MPI_COMM_WORLD);
+			MPI_Send(matrix + i, m/comm_sz, column, i, 0, MPI_COMM_WORLD);
 		MPI_Scatter(vector, 1, MPI_FLOAT, &x, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 	}
 	else
 	{
-		MPI_Recv(matrix, 1, column, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		MPI_Recv(matrix, m/comm_sz, column, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 		MPI_Scatter(vector, 1, MPI_FLOAT, &x, 1, MPI_FLOAT, 0, MPI_COMM_WORLD);
 	}
+	
+	printf("\n\n--result--\n");
+	for(i = 0; i < n*m; i++)
+		printf("%f ", matrix[i]);
+	printf("\n");
 
+	double start, finish;
+	start = MPI_Wtime();
 	for(i = 0; i < n; i++)
 	{
 		parcial = matrix[i*m]*x;
 		MPI_Reduce(&parcial, vector + i, 1, MPI_FLOAT, MPI_SUM, 0, MPI_COMM_WORLD);
 	}
+	finish = MPI_Wtime();
 	
 	free(matrix);
 	if(rank == 0)
 	{
+		printf("time = %e\n", finish - start);
 		int i;
 		printf("\n\n--result--\n");
 		for(i = 0; i < m; i++)

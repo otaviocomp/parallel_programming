@@ -38,7 +38,7 @@ double f(double x);
 
 int main(void) 
 {
-	int my_rank, comm_sz, n = 65536, local_n;   
+	int my_rank, comm_sz, n = 10000000, local_n;   
 	double a = 0.0, b = 3.0, h, local_a, local_b;
 	double local_int, total_int = 0, start, finish;
 	int source; 
@@ -60,13 +60,13 @@ int main(void)
 	* starts at: */
 	local_a = a + my_rank*local_n*h;
 	local_b = local_a + local_n*h;
+	start = MPI_Wtime();
 	local_int = Trap(local_a, local_b, local_n, h);
 
 	/* Add up the integrals calculated by each process */
 	int divisor = 2;
 	int diff = 1;
 	int partner;
-	start = MPI_Wtime();
 	for(divisor = 2; divisor <= comm_sz; divisor *= 2)
 	{
 		if ((my_rank % divisor == 0) && ((my_rank + diff) < comm_sz)) 
@@ -75,11 +75,6 @@ int main(void)
 			partner = my_rank + diff;
 			MPI_Recv(&local_int, 1, MPI_DOUBLE, partner, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
 			total_int += local_int;
-		}
-		else if((my_rank % divisor == 0) && ((my_rank + diff) == comm_sz))
-		{
-			partner = my_rank - (diff + 1);
-			MPI_Send(&local_int, 1, MPI_DOUBLE, partner, 0, MPI_COMM_WORLD);
 		}
 		else 
 		{
@@ -90,10 +85,10 @@ int main(void)
 		diff *= 2;
 	}
 	finish = MPI_Wtime();
-	printf("time = %e\n", finish - start);
 	/* Print the result */
 	if (my_rank == 0) 
 	{
+		printf("time = %e\n", finish - start);
 		printf("With n = %d trapezoids, our estimate\n", n);
 		printf("of the integral from %f to %f = %.15e\n", a, b, total_int);
 	}

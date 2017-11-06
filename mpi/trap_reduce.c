@@ -38,7 +38,7 @@ double f(double x);
 int main(void) 
 {
 	double start, finish;
-	int my_rank, comm_sz, n = 65536, local_n;   
+	int my_rank, comm_sz, n = 10000000, local_n;   
 	double a = 0.0, b = 3.0, h, local_a, local_b;
 	double local_int, total_int = 0;
 	int source; 
@@ -60,10 +60,10 @@ int main(void)
 	* starts at: */
 	local_a = a + my_rank*local_n*h;
 	local_b = local_a + local_n*h;
+	start = MPI_Wtime();
 	local_int = Trap(local_a, local_b, local_n, h);
 
 	/* Add up the integrals calculated by each process */
-	start = MPI_Wtime();
 	MPI_Reduce(&local_int, &total_int, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);	
 	finish = MPI_Wtime();
 	/* Print the result */

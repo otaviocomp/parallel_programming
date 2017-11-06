@@ -71,8 +71,11 @@ int main(void) {
 #  ifdef DEBUG
    Print_vector("x", local_x, n, local_n, my_rank, comm);
 #  endif
-
+   double start, finish;
+   start = MPI_Wtime();
    Mat_vect_mult(local_A, local_x, local_y, local_m, n, local_n, comm);
+   finish = MPI_Wtime();
+   printf("time = %e\n", finish - start);
 
    Print_vector("y", local_y, m, local_m, my_rank, comm);
 
