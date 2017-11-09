@@ -2,11 +2,12 @@
 #include <mpi.h>
 #include <time.h>
 
-#define SIZE_PROBLEM 1000000000
+#define SIZE_PROBLEM 10000000000
 
 int main()
 {
 	clock_t t;
+	double start, finish;
 	long int soma = 0, my_first, my_last, i;
 	int tam, rank;
 	MPI_Init(NULL, NULL);
@@ -14,6 +15,7 @@ int main()
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	if(rank == 0)
 		t = clock();
+	start = MPI_Wtime();	
 	my_first = (SIZE_PROBLEM / tam) * (long int)rank;
 	my_last = my_first + SIZE_PROBLEM / (long int)tam;
 	for(i = my_first; i < my_last; i++)
@@ -30,8 +32,10 @@ int main()
 			final = final + soma;
 		}
 		printf("resultado: %ld\n", final);
+		finish = MPI_Wtime();
 		t = clock() - t;
-		printf("o tempo de execucao foi: %f\n", (float)t / (float)CLOCKS_PER_SEC);
+		printf("time clock = %e\n", (double)t/CLOCKS_PER_SEC);
+		printf("time Wtime = %e\n", finish - start);
 	}
 	MPI_Finalize();
 }

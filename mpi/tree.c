@@ -69,7 +69,6 @@ int main(void) {
 	int partner;
 	int done = 0;
 	int diff = 1;
-	unsigned bitmask;
 	while(bitmask < comm_sz)
 	{
 		partner = my_rank ^ bitmask;
