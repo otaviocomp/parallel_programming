@@ -3,7 +3,7 @@
 #include <omp.h>
 #include <time.h>
 
-#define SIZE 10000000000
+#define SIZE 100000000
 
 int main(int arcv, char *argv[])
 {
@@ -13,18 +13,15 @@ int main(int arcv, char *argv[])
 	//int threads = strtol(argv[1], NULL, 10);
 
 	t = clock();
-	#pragma omp parallel
+	#pragma omp parallel reduction(+: total)
 	{
 		size = omp_get_num_threads();
 		long int i, soma = 0;
 		#pragma omp for
 		for(i = 0; i < SIZE; i++)
 			soma += i;
-		#pragma omp critical
-			total += soma;
+		total += soma;
 	}
 	t = (clock() - t)/size;
-	printf("valor total = %ld\nexecutado no tempo = %f\n", total, (float)t/CLOCKS_PER_SEC);
+	printf("valor total = %ld\nexecutado no tempo = %e\n", total, (float)t/CLOCKS_PER_SEC);
 }
-			
-
