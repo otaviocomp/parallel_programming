@@ -3,7 +3,7 @@
 #include <omp.h>
 #include <time.h>
 
-#define SIZE 100000000
+#define SIZE 10000000000
 
 int main(int arcv, char *argv[])
 {

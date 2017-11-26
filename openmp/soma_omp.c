@@ -3,7 +3,7 @@
 #include <time.h>
 #include <omp.h>
 
-#define SIZE 100000000
+#define SIZE 10000000000
 
 int main(int argc, char *argv[])
 {
@@ -25,5 +25,5 @@ int main(int argc, char *argv[])
 			total += soma;	
 	}
 	t = (clock() - t)/threads;
-	printf("valor total = %ld\n executado no tempo = %f\n", total, (float)t/CLOCKS_PER_SEC);
+	printf("valor total = %ld\n executado no tempo = %e\n", total, (float)t/CLOCKS_PER_SEC);
 }	
