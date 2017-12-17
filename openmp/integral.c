@@ -1,26 +1,38 @@
 #include <stdio.h>
 #include <omp.h>
 
-double trap(int n, double inferior_limit, double superior_limit);
+void input_vars(int *n, double *inferior_limit, int *superior_limit);
+double trap(int n, double inferior_limit, int superior_limit);
 double f(double x);
 
 int main()
 {
 	// n is the number of trapezoids
-	int n = 1024;
-	double inferior_limit = 0.0;
-	double superior_limit = 3.0;
+	int n;
+	double inferior_limit;
+	int superior_limit;
+	input_vars(&n, &inferior_limit, &superior_limit);
+
 	double result;
 	result = trap(n, inferior_limit, superior_limit);
 	printf("result = %e\n", result);
 }
 
-double trap(int n, double inferior_limit, double superior_limit)
+void input_vars(int *n, double *inferior_limit, int *superior_limit)
+{
+	printf("number of trapezoids: ");
+	scanf("%d", n);
+	printf("inferior limit: ");
+	scanf("%e", inferior_limit);
+	printf("superior limit: ");
+	scanf("%d", superior_limit);
+}
+
+double trap(int n, double inferior_limit, int superior_limit)
 {
 	double h = (superior_limit - inferior_limit) / n;
 	double a;
 	double b;
-	double area;
 	double accumulator = 0.0;
 	int i;
 	#pragma omp parallel for reduction(+ : accumulator) private(a, b)
