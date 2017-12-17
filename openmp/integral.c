@@ -24,11 +24,11 @@ double trap(int n, double inferior_limit, double superior_limit)
 	double accumulator = 0.0;
 	int i;
 	#pragma omp parallel for reduction(+ : accumulator) private(a, b)
-	for(i = 1; i <= 1024; i++)
+	for(i = 0; i < n; i++)
 	{
 		a = i * h;
 		b = (i + 1) * h;
-		accumulator = (f(a) + f(b)) * h / 2.0;
+		accumulator = (f(a) + f(b)) * h / 2.0 + accumulator;
 	}
 	return accumulator;
 }
