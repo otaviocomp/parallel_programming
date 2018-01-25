@@ -3,7 +3,7 @@
 #include <omp.h>
 #include <time.h>
 
-#define SIZE 10000000000
+#define SIZE 1000000000
 
 int main(int arcv, char *argv[])
 {
@@ -19,8 +19,8 @@ int main(int arcv, char *argv[])
 		long int i, soma = 0;
 		#pragma omp for
 		for(i = 0; i < SIZE; i++)
-			soma += i;
-		total += soma;
+			total += i;
+		//total += soma;
 	}
 	t = (clock() - t)/size;
 	printf("valor total = %ld\nexecutado no tempo = %e\n", total, (float)t/CLOCKS_PER_SEC);
